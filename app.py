@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, url_for, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
@@ -18,14 +18,40 @@ def main():
         def __repr__(self):  # при запросе выдаётся объект + id
             return '<Users %r>' % self.id
 
-        # ЕЩЁ НУЖНО СОЗДАТЬ САМУ БД!!!!!!!!!!!!!!
+    db.create_all()
 
     @app.route('/')
     def index():
         return render_template("index.html")
 
-    @app.route('/qwe')
-    def qwe():
-        return render_template('qwe.html')
+    @app.route('/addUsers', methods=['POST', 'GET'])
+    def addUsers():
+        if request.method == "POST":
+            username = request.form['username']
+            # date = request.form['date']
+            users = Users(username=username)  # создание экземпляра класса БД и передача в нее значений из формы
+            try:
+                db.session.add(users)
+                db.session.commit()
+                return redirect('/users')
+            except:
+                return "Ошибка при добавлении данных в БД"
+        else:
+            return render_template('addUsers.html')
+
+    @app.route('/users')
+    def users():
+        users = Users.query.order_by(Users.date.desc()).all()
+        return render_template("users.html", users=users)
+
+    @app.route('/users/<int:id>/delete')
+    def user_delete(id):
+        user = Users.query.get_or_404(id)
+        try:
+            db.session.delete(user)
+            db.session.commit()
+            return redirect('/users')
+        except:
+            return "Ошибка при удалении пользователя"
 
     app.run(debug=True)

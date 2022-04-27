@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}
+    Список пользователей
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1>Список пользователей</h1>
+    {% if users|length > 0 %}
+        {% for i in users%}
+        <div class="alert alert-info">
+            {{ i.id }}
+            {{ i.username }}
+            {{ i.date }}
+            <a href="/users/{{ i.id }}/delete" class="btn btn-outline-secondary">Удалить</a>
+        </div>
+        {% endfor %}
+    {% else %}
+        Никого нет
+    {% endif %}
+</div>
+{% endblock %}
