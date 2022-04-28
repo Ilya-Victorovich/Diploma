@@ -18,6 +18,15 @@ def main():
         def __repr__(self):  # при запросе выдаётся объект + id
             return '<Users %r>' % self.id
 
+    class Trials(db.Model):
+        id = db.Column(db.Integer, primary_key=True)
+        username = db.Column(db.String(20))
+        title = db.Column(db.String(20))
+        date = db.Column(db.DateTime, default=datetime.utcnow)
+
+        def __repr__(self):  # при запросе выдаётся объект + id
+            return '<Users %r>' % self.id
+
     db.create_all()
 
     @app.route('/')
@@ -28,7 +37,6 @@ def main():
     def addUsers():
         if request.method == "POST":
             username = request.form['username']
-            # date = request.form['date']
             users = Users(username=username)  # создание экземпляра класса БД и передача в нее значений из формы
             try:
                 db.session.add(users)
@@ -41,7 +49,7 @@ def main():
 
     @app.route('/users')
     def users():
-        users = Users.query.order_by(Users.date.desc()).all()
+        users = Users.query.all()
         return render_template("users.html", users=users)
 
     @app.route('/users/<int:id>/delete')
@@ -53,5 +61,25 @@ def main():
             return redirect('/users')
         except:
             return "Ошибка при удалении пользователя"
+
+    @app.route('/addTrials', methods=['GET', 'POST'])
+    def addTrials():
+        if request.method == "POST":
+            username = request.form['username']
+            title = request.form['title']
+            trials = Trials(username=username, title=title)
+            try:
+                db.session.add(trials)
+                db.session.commit()
+                return redirect('/trials')
+            except:
+                return "Ошибка при добавлении данных в БД"
+        else:
+            return render_template('addTrials.html')
+
+    @app.route('/trials')
+    def trials():
+        trials = Trials.query.order_by(Trials.date.desc()).all()
+        return render_template("trials.html", trials=trials)
 
     app.run(debug=True)

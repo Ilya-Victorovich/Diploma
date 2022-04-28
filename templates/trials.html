@@ -1,21 +1,22 @@
 {% extends 'base.html' %}
 {% block title %}
-    Список пользователей
+    Список исследований
 {% endblock %}
 
 {% block body %}
 <div class="container mt-5">
-    <h1>Список пользователей</h1>
-    {% if users|length > 0 %}
-        {% for i in users%}
+    <h1>Список исследований</h1>
+    {% if trials|length > 0 %}
+        {% for i in trials%}
         <div class="alert alert-info">
             {{ i.id }}
             {{ i.username }}
-            <a href="/users/{{ i.id }}/delete" class="btn btn-outline-secondary">Удалить</a>
+            {{ i.title }}
+            {{ i.date.date() }}
         </div>
         {% endfor %}
     {% else %}
-        Никого нет
+        Ничего нет
     {% endif %}
 </div>
 {% endblock %}
