@@ -5,10 +5,15 @@
 
 {% block body %}
 <div class="container mt-5">
-    <h1>Добавление</h1>
+    <h1>Создание исследования</h1>
     <form method="post">
         <input type="text" name="title" id="title" class="form-control" placeholder="title">
-        <input type="submit" class="btn btn-success" value="Создать">
+        <input type="number" name="number_of_participants" id="number_of_participants" class="form-control" placeholder="Number of participants" step="1" min="2" max="1000" value="15">
+        <input type="number" name="number_of_interventions" id="number_of_interventions" class="form-control" placeholder="number_of_interventions" step="1" min="2" max="10" value="3">
+        {% for i in range(number_of_interventions) %}
+            <input type="text" name={{i}} class="form-control" placeholder="Вмешательство">
+        {% endfor %}
+        <input type="submit" class="btn btn-success" value="Далее">
     </form>
 </div>
 {% endblock %}

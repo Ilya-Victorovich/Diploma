@@ -13,6 +13,7 @@
             {{ i.username }}
             {{ i.title }}
             {{ i.date.date() }}
+            {{ i.number_of_participants }}
             <a href="/trials/{{ i.id }}/delete" class="btn btn-outline-secondary">Удалить</a>
         </div>
         {% endfor %}

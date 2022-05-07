@@ -6,7 +6,8 @@
 {% block body %}
 <div class="container mt-5">
     <h1>Личный кабинет</h1>
-
+    Добро пожаловать, {{ AUTHORIZED_LOGIN }}
+    Ваши исследования:
     {% if account_trials|length > 0 %}
         {% for i in account_trials%}
         <div class="alert alert-info">
