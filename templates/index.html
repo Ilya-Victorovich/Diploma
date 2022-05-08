@@ -4,31 +4,5 @@
 {% endblock %}
 
 {% block body %}
-<form action="" method="get" name="f1">
-<div class="form-group">
-    <form method="post">
-        <label>Введите количество треков в альбоме</label>
-        <input id="s" name="s" value="" onChange="createtext()" class="form-control"      placeholder="Введите количество треков в альбоме">
-    </form>
-</div>
-</form>
-    <script>
-    function createtext(){
-    var i=0;
-    var len1=document.getElementById('s');
-    var len2=len1.value;
-    for(i;i<len2;i++)
-    {
-        var el= new Array();;
-        el[i]=document.createElement('input');
-        el[i].type='text';
-        el[i].name='text'+i;
-        el[i].size = 60;
-        document.f1.appendChild(el[i]);
-        var mybr=document.createElement('br');
-        document.f1.appendChild(mybr);
-        }
-    }
-    </script>
 
 {% endblock %}

@@ -4,16 +4,74 @@
 {% endblock %}
 
 {% block body %}
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
 <div class="container mt-5">
     <h1>Создание исследования</h1>
-    <form method="post">
-        <input type="text" name="title" id="title" class="form-control" placeholder="title">
-        <input type="number" name="number_of_participants" id="number_of_participants" class="form-control" placeholder="Number of participants" step="1" min="2" max="1000" value="15">
-        <input type="number" name="number_of_interventions" id="number_of_interventions" class="form-control" placeholder="number_of_interventions" step="1" min="2" max="10" value="3">
-        {% for i in range(number_of_interventions) %}
-            <input type="text" name={{i}} class="form-control" placeholder="Вмешательство">
-        {% endfor %}
-        <input type="submit" class="btn btn-success" value="Далее">
-    </form>
+        <form method="post" id="interv" name="interv">
+            <input type="text" name="title" id="title" class="form-control" placeholder="title">
+            <input type="number" name="number_of_participants" id="number_of_participants" class="form-control" placeholder="Number of participants" step="1" min="2" max="1000" value="15">
+            <input type="number" name="number_of_interventions" id="number_of_interventions" class="form-control" placeholder="number_of_interventions" step="1" min="2" max="10" onChange="createtext(this);this.oldvalue = this.value;">
+            <input type="submit" class="btn btn-success" value="Далее">
+        </form>
 </div>
+<!--
+<input type="text" onfocus="this.oldvalue = this.value;" onchange="onChangeTest(this);this.oldvalue = this.value;" />
+<script type="text/javascript">
+function onChangeTest(textbox) {
+    alert("Value is " + textbox.value + "\n" + "Old Value is " + textbox.oldvalue);
+}
+</script>
+-->
+
+<script type="text/javascript">
+
+    function createtext(textbox)
+    {
+        /*
+        // Удаление всех дочерних элементов
+        var element = document.getElementById("interv");
+        while (element.firstChild)
+        {
+          element.removeChild(element.firstChild);
+        }
+        */
+
+        var element = document.getElementById("interv");
+        for(var i = 0; i < parseInt(textbox.oldvalue); i++)
+        {
+          element.removeChild(element.lastChild);
+        }
+
+        /*
+        alert("Value is " + textbox.value + "\n" + "Old Value is " + textbox.oldvalue + "\n" + "type of old value: " + typeof(textbox.oldvalue));
+        var input=document.getElementsByName("intervention");
+        for(var i=0;i<parseInt(textbox.oldvalue);i++)
+        {
+            alert(input[i].id);
+        }
+        */
+
+        var len1=document.getElementById('number_of_interventions');
+        var len2=len1.value;
+        for(var i=0;i<len2;i++)
+        {
+            //var mybr=document.createElement('br');
+            //document.f1.appendChild(mybr);
+            var el= new Array();
+            el[i]=document.createElement('input');
+            el[i].type='text';
+            el[i].name='intervention'+i;
+            document.interv.appendChild(el[i]);
+        }
+    }
+</script>
+
 {% endblock %}

@@ -60,47 +60,58 @@ def main():
             username = (Users.query.filter_by(login=AUTHORIZED_LOGIN).first()).login
             user_id = (Users.query.filter_by(login=AUTHORIZED_LOGIN).first()).id
             title = request.form['title']
-            number_of_participants = request.form['number_of_participants']
-            number_of_interventions = request.form['number_of_interventions']
+            number_of_participants = int(request.form['number_of_participants'])
+            number_of_interventions = int(request.form['number_of_interventions'])
             trials = Trials(username=username, title=title,
                             number_of_participants=number_of_participants,
                             number_of_interventions=number_of_interventions, user_id=user_id)
-            try:
-                db.session.add(trials)
-                db.session.commit()
-                #return redirect(url_for('addTrialsNext', number_of_interventions=number_of_interventions))
-                return render_template('index.html')
-            except:
-                return "Ошибка при добавлении данных в БД"
-        else:
-            return render_template('addTrials.html', number_of_interventions=0)
 
-    @app.route('/addTrialsNext/<int:number_of_interventions>', methods=['GET', 'POST'])
-    @login_required
-    def addTrialsNext(number_of_interventions):
-        if request.method == "POST":
+            #print(f'{title} {number_of_participants} {number_of_interventions}')
+
+            if not title or not number_of_participants or not number_of_interventions:
+                flash('Заполните все поля')
+                return render_template('addTrials.html')
+
             interventions = []  # список из вариантов вмешательств
             for i in range(number_of_interventions):
-                interventions.append(request.form[f'{i}'])  # заполнение списка
-            '''Проверка элементов списка на уникальность'''
+                interventions.append(request.form[f'intervention{i}'])  # заполнение списка
+
+            #print(interventions)
+            '''Проверка элементов списка на уникальность и пустоту'''
             unique = True
+            empty = False
             for i in range(len(interventions) - 1):
                 for j in range(i + 1, len(interventions)):
+                    #print(f'i={i} j={j}')
+                    if not interventions[i] or not interventions[j]:
+                        empty = True
+                        break
                     if interventions[i] == interventions[j]:
                         unique = False
                         break
             if not unique:
                 flash('Поля совпадают')
-                return render_template("addTrialsNext.html", number_of_interventions=number_of_interventions)
-
-            # Рандомизация с помощью кода R, создание групп
-            r = robjects.r  # Определение сценария R и загрузка экземпляра в Python
-            r['source']('randomization.R')
-            randomization_function_r = robjects.globalenv['randomization']  # Загрузка функции, определенной в R.
-            data = randomization_function_r(15, number_of_interventions, interventions)
-            print(data)
-            return redirect('/trials')
-        return render_template("addTrialsNext.html", number_of_interventions=number_of_interventions)
+                return render_template('addTrials.html')
+            elif empty:
+                flash('Заполните все поля')
+                return render_template('addTrials.html')
+            else:
+                # Рандомизация с помощью кода R, создание групп
+                r = robjects.r  # Определение сценария R и загрузка экземпляра в Python
+                r['source']('randomization.R')
+                randomization_function_r = robjects.globalenv['randomization']  # Загрузка функции, определенной в R.
+                print(number_of_participants)
+                print(type(number_of_participants))
+                data = randomization_function_r(number_of_participants, number_of_interventions, interventions)
+                print(data)
+                try:
+                    db.session.add(trials)
+                    db.session.commit()
+                    return redirect(url_for('account'))
+                except:
+                    return "Ошибка при добавлении данных в БД"
+        else:
+            return render_template('addTrials.html')
 
     @app.route('/trials')
     def trials():
