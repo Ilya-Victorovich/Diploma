@@ -33,6 +33,7 @@ def main():
         date = db.Column(db.DateTime, default=datetime.utcnow)
         number_of_participants = db.Column(db.Integer)  # количество испытуемых
         number_of_interventions = db.Column(db.Integer)  # количество вмешательств
+        max_group_size = db.Column(db.Integer)  # максимальный размер группы
 
         '''связь таблицы пользователя и исследований - один к многим, значение таблицы в ForeignKey - всегда с маленькой 
         буквы '''
@@ -62,9 +63,11 @@ def main():
             title = request.form['title']
             number_of_participants = int(request.form['number_of_participants'])
             number_of_interventions = int(request.form['number_of_interventions'])
+            max_group_size = int(request.form['max_group_size'])
             trials = Trials(username=username, title=title,
                             number_of_participants=number_of_participants,
-                            number_of_interventions=number_of_interventions, user_id=user_id)
+                            number_of_interventions=number_of_interventions,
+                            max_group_size=max_group_size, user_id=user_id)
 
             #print(f'{title} {number_of_participants} {number_of_interventions}')
 
@@ -102,7 +105,7 @@ def main():
                 randomization_function_r = robjects.globalenv['randomization']  # Загрузка функции, определенной в R.
                 print(number_of_participants)
                 print(type(number_of_participants))
-                data = randomization_function_r(number_of_participants, number_of_interventions, interventions)
+                data = randomization_function_r(number_of_participants, number_of_interventions, interventions, max_group_size)
                 print(data)
                 try:
                     db.session.add(trials)
