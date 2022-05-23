@@ -13,15 +13,17 @@ randomization <- function(number_of_participants, number_of_interventions, inter
     else
       sizes <- c(sizes, i)
   }
-  print(sizes)
+  #print(sizes)
+
   bfla <- blockrand(number_of_participants,
                     num.levels = number_of_interventions, # number of treatments
                     levels = c(interventions, recursive=TRUE), # arm names
                     # #stratum = "Bfail.LowAlb", # stratum name
-                    id.prefix = "BfLA", # stratum abbrev
+                    #id.prefix = "BfLA", # stratum abbrev
                     #block.sizes = c(1,2,3), # times arms = 3,6,9
                     block.sizes = sizes,
-                    block.prefix = "BfLA" # stratum abbrev
+                    #block.prefix = "BfLA" # stratum abbrev
   )
+
   return(bfla)
 }

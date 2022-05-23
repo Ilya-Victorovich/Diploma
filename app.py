@@ -25,6 +25,9 @@ def main():
         password = db.Column(db.String(30), nullable=False)
         tr = db.relationship('Trials', backref='Users', uselist=True)
 
+        def __repr__(self):  # при запросе выдаётся объект + id
+            return '<Users %r>' % self.id
+
     class Trials(db.Model):
         id = db.Column(db.Integer, primary_key=True)
         username = db.Column(db.String(20))
@@ -39,8 +42,14 @@ def main():
         буквы '''
         user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-        def __repr__(self):  # при запросе выдаётся объект + id
-            return '<Users %r>' % self.id
+    class Schemes(db.Model):
+        id = db.Column(db.Integer, primary_key=True)
+        trial_id = db.Column(db.Integer)
+        number_id = db.Column(db.Integer)
+        block_id = db.Column(db.String(20))
+        block_size = db.Column(db.Integer)
+        treatment = db.Column(db.String(20))
+
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -64,12 +73,11 @@ def main():
             number_of_participants = int(request.form['number_of_participants'])
             number_of_interventions = int(request.form['number_of_interventions'])
             max_group_size = int(request.form['max_group_size'])
-            trials = Trials(username=username, title=title,
-                            number_of_participants=number_of_participants,
-                            number_of_interventions=number_of_interventions,
-                            max_group_size=max_group_size, user_id=user_id)
-
-            #print(f'{title} {number_of_participants} {number_of_interventions}')
+            trial = Trials(username=username, title=title,
+                           number_of_participants=number_of_participants,
+                           number_of_interventions=number_of_interventions,
+                           max_group_size=max_group_size, user_id=user_id)
+            # print(f'{title} {number_of_participants} {number_of_interventions}')
 
             if not title or not number_of_participants or not number_of_interventions:
                 flash('Заполните все поля')
@@ -79,13 +87,13 @@ def main():
             for i in range(number_of_interventions):
                 interventions.append(request.form[f'intervention{i}'])  # заполнение списка
 
-            #print(interventions)
+            # print(interventions)
             '''Проверка элементов списка на уникальность и пустоту'''
             unique = True
             empty = False
             for i in range(len(interventions) - 1):
                 for j in range(i + 1, len(interventions)):
-                    #print(f'i={i} j={j}')
+                    # print(f'i={i} j={j}')
                     if not interventions[i] or not interventions[j]:
                         empty = True
                         break
@@ -103,12 +111,24 @@ def main():
                 r = robjects.r  # Определение сценария R и загрузка экземпляра в Python
                 r['source']('randomization.R')
                 randomization_function_r = robjects.globalenv['randomization']  # Загрузка функции, определенной в R.
-                print(number_of_participants)
-                print(type(number_of_participants))
-                data = randomization_function_r(number_of_participants, number_of_interventions, interventions, max_group_size)
-                print(data)
+                # print(number_of_participants)
+                data = randomization_function_r(number_of_participants, number_of_interventions, interventions,
+                                                max_group_size)
+                #print(data)
                 try:
-                    db.session.add(trials)
+                    db.session.add(trial)
+                    db.session.commit()
+                    for i in range(len(data[0])):
+                        id = data[0][i]
+                        block_id = data[1][i]
+                        block_size = data[2][i]
+                        treatment = data[3].levels[data[3][i] - 1]
+                        print(f'{id} {block_id} {block_size} {treatment}')
+                        '''schemes.append(Schemes(trial_id=trial.id, id=id, block_id=block_id, block_size=block_size,
+                                               treatment=treatment))'''
+                        print(f'trial_id={trial.id}')
+                        db.session.add(Schemes(trial_id=trial.id, number_id=id, block_id=block_id, block_size=block_size,
+                                               treatment=treatment))
                     db.session.commit()
                     return redirect(url_for('account'))
                 except:
@@ -124,8 +144,10 @@ def main():
     @app.route('/trials/<int:id>/delete')
     def trials_delete(id):
         trial = Trials.query.get_or_404(id)
+        schemes = Schemes.query.get_or_404(id)
         try:
             db.session.delete(trial)
+            db.session.delete(schemes)
             db.session.commit()
             return redirect('/trials')
         except:
@@ -155,6 +177,7 @@ def main():
             else:
                 hash_password = generate_password_hash(password)
                 new_user = Users(login=login, password=hash_password)
+
                 db.session.add(new_user)
                 db.session.commit()
                 return redirect("/login")
