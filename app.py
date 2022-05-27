@@ -144,10 +144,11 @@ def main():
     @app.route('/trials/<int:id>/delete')
     def trials_delete(id):
         trial = Trials.query.get_or_404(id)
-        schemes = Schemes.query.get_or_404(id)
+        schemes = Schemes.query.filter_by(trial_id=id).all()
         try:
             db.session.delete(trial)
-            db.session.delete(schemes)
+            for sch in schemes:
+                db.session.delete(sch)
             db.session.commit()
             return redirect('/trials')
         except:
