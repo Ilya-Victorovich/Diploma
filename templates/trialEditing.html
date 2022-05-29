@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}
+    Исследование
+{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="alert alert-info">
+            {{ trial.id }}
+            {{ trial.username }}
+            {{ trial.title }}
+            {{ trial.date.date() }}
+            {{ trial.number_of_participants }}
+        </div>
+
+        <button type="submit" class="btn btn-success" onclick="openForm()">Добавить пациента</button>
+        <hr>
+        <div class="form-popup" id="myForm">
+            <form method="post" class="form-container">
+                <h5>Введите индекс пациента:</h5>
+                <input type="text" placeholder="Введите индекс пациента" name="index" id="index" required>
+                <button type="submit" class="btn btn-success">Добавить</button>
+                <button type="submit" class="btn cancel" onclick="closeForm()">Закрыть</button>
+            </form>
+        </div>
+
+        <h4>Зарегистрированные пациенты:</h4>
+        {% if participants|length > 0 %}
+            {% for i in participants%}
+            <div class="alert alert-info">
+                {{ i.id }}
+                {{ i.index }}
+                {{ i.trial_id }}
+                {{ i.treatment }}
+            </div>
+            {% endfor %}
+        {% else %}
+            Никого нет
+        {% endif %}
+    </div>
+
+
+<script>
+    function openForm() {
+      document.getElementById("myForm").style.display = "block";
+    }
+
+    function closeForm() {
+      document.getElementById("myForm").style.display = "none";
+    }
+</script>
+{% endblock %}

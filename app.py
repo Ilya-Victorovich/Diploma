@@ -50,6 +50,11 @@ def main():
         block_size = db.Column(db.Integer)
         treatment = db.Column(db.String(20))
 
+    class Participants(db.Model):
+        id = db.Column(db.Integer, primary_key=True)
+        index = db.Column(db.String(20))  # наименование пациента
+        trial_id = db.Column(db.Integer)
+        treatment = db.Column(db.String(20))
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -114,21 +119,22 @@ def main():
                 # print(number_of_participants)
                 data = randomization_function_r(number_of_participants, number_of_interventions, interventions,
                                                 max_group_size)
-                #print(data)
+                # print(data)
                 try:
                     db.session.add(trial)
                     db.session.commit()
-                    for i in range(len(data[0])):
+                    for i in range(len(data[0])):  # преобразование данных с RDataFrame к нормальному виду
                         id = data[0][i]
                         block_id = data[1][i]
                         block_size = data[2][i]
                         treatment = data[3].levels[data[3][i] - 1]
-                        print(f'{id} {block_id} {block_size} {treatment}')
+                        #print(f'{id} {block_id} {block_size} {treatment}')
                         '''schemes.append(Schemes(trial_id=trial.id, id=id, block_id=block_id, block_size=block_size,
                                                treatment=treatment))'''
-                        print(f'trial_id={trial.id}')
-                        db.session.add(Schemes(trial_id=trial.id, number_id=id, block_id=block_id, block_size=block_size,
-                                               treatment=treatment))
+                        #print(f'trial_id={trial.id}')
+                        db.session.add(
+                            Schemes(trial_id=trial.id, number_id=id, block_id=block_id, block_size=block_size,
+                                    treatment=treatment))
                     db.session.commit()
                     return redirect(url_for('account'))
                 except:
@@ -141,18 +147,55 @@ def main():
         trials = Trials.query.order_by(Trials.date.desc()).all()
         return render_template("trials.html", trials=trials)
 
-    @app.route('/trials/<int:id>/delete')
-    def trials_delete(id):
-        trial = Trials.query.get_or_404(id)
-        schemes = Schemes.query.filter_by(trial_id=id).all()
+    @app.route('/trials/<int:trial_id>/delete')
+    @login_required
+    def trials_delete(trial_id):
+        trial = Trials.query.get_or_404(trial_id)
+        schemes = Schemes.query.filter_by(trial_id=trial_id).all()
+        participants = Participants.query.filter_by(trial_id=trial_id).all()
         try:
             db.session.delete(trial)
             for sch in schemes:
                 db.session.delete(sch)
+            for part in participants:
+                db.session.delete(part)
             db.session.commit()
             return redirect('/trials')
         except:
             return "Ошибка при удалении исследования"
+
+    @app.route('/trials/<int:trial_id>/editing', methods=['GET', 'POST'])
+    @login_required
+    def trial_editing(trial_id):
+        trial = Trials.query.get_or_404(trial_id)
+        participants = Participants.query.filter_by(trial_id=trial_id).all()
+        if request.method == "POST":
+            index = request.form.get('index')
+            #print(f'index={index}')
+            return redirect(f'/trials/{trial_id}/addParticipant?index={index}')
+
+        return render_template('trialEditing.html', trial=trial, participants=participants)
+
+    @app.route('/trials/<int:trial_id>/addParticipant', methods=['GET', 'POST'])
+    @login_required
+    def addParticipant(trial_id):
+        index = request.args.get('index')
+        #print(f'index={index}')
+        participants_count = Participants.query.filter_by(trial_id=trial_id).count()  # количество зарегистрированных
+        # участников
+        #print(f'participants_count={participants_count}')
+        scheme_count = Schemes.query.filter_by(trial_id=trial_id).count()
+        #print(f'scheme.count()={scheme_count}')
+        scheme = Schemes.query.filter_by(trial_id=trial_id).all()
+        '''for i in range(scheme_count):
+            print(f'i={i} scheme[i].id={scheme[i].id}')'''
+        treatment = scheme[participants_count].treatment
+        #print(f'treatment={treatment}')
+
+        new_participant = Participants(index=index, trial_id=trial_id, treatment=treatment)
+        db.session.add(new_participant)
+        db.session.commit()
+        return redirect(f'/trials/{trial_id}/editing')
 
     @app.route('/register', methods=['GET', 'POST'])
     def register():

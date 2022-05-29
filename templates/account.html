@@ -15,6 +15,9 @@
             {{ i.username }}
             {{ i.title }}
             {{ i.date.date() }}
+            {{ i.number_of_participants }}
+            <a href="/trials/{{ i.id }}/delete" class="btn btn-outline-secondary">Удалить</a>
+            <a href="/trials/{{ i.id }}/editing" class="btn btn-outline-secondary">Редактировать исследование</a>
         </div>
         {% endfor %}
     {% else %}
