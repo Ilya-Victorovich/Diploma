@@ -36,7 +36,8 @@ def main():
         date = db.Column(db.DateTime, default=datetime.utcnow)
         number_of_participants = db.Column(db.Integer)  # количество испытуемых
         number_of_interventions = db.Column(db.Integer)  # количество вмешательств
-        max_group_size = db.Column(db.Integer)  # максимальный размер группы
+        max_block_size = db.Column(db.Integer)  # максимальный размер группы
+        if_finished = db.Column(db.Boolean, default=0)
 
         '''связь таблицы пользователя и исследований - один к многим, значение таблицы в ForeignKey - всегда с маленькой 
         буквы '''
@@ -52,7 +53,7 @@ def main():
 
     class Participants(db.Model):
         id = db.Column(db.Integer, primary_key=True)
-        index = db.Column(db.String(20))  # наименование пациента
+        index = db.Column(db.String(20))  # наименование пациента (индексом)
         trial_id = db.Column(db.Integer)
         treatment = db.Column(db.String(20))
 
@@ -77,11 +78,11 @@ def main():
             title = request.form['title']
             number_of_participants = int(request.form['number_of_participants'])
             number_of_interventions = int(request.form['number_of_interventions'])
-            max_group_size = int(request.form['max_group_size'])
+            max_block_size = int(request.form['max_block_size'])
             trial = Trials(username=username, title=title,
                            number_of_participants=number_of_participants,
                            number_of_interventions=number_of_interventions,
-                           max_group_size=max_group_size, user_id=user_id)
+                           max_block_size=max_block_size, user_id=user_id)
             # print(f'{title} {number_of_participants} {number_of_interventions}')
 
             if not title or not number_of_participants or not number_of_interventions:
@@ -118,7 +119,7 @@ def main():
                 randomization_function_r = robjects.globalenv['randomization']  # Загрузка функции, определенной в R.
                 # print(number_of_participants)
                 data = randomization_function_r(number_of_participants, number_of_interventions, interventions,
-                                                max_group_size)
+                                                max_block_size)
                 # print(data)
                 try:
                     db.session.add(trial)
@@ -142,9 +143,9 @@ def main():
         else:
             return render_template('addTrials.html')
 
-    @app.route('/trials')
+    @app.route('/trials')  # завершенные исследования
     def trials():
-        trials = Trials.query.order_by(Trials.date.desc()).all()
+        trials = Trials.query.filter_by(if_finished=1).order_by(Trials.date.desc()).all()
         return render_template("trials.html", trials=trials)
 
     @app.route('/trials/<int:trial_id>/delete')
@@ -173,7 +174,6 @@ def main():
             index = request.form.get('index')
             #print(f'index={index}')
             return redirect(f'/trials/{trial_id}/addParticipant?index={index}')
-
         return render_template('trialEditing.html', trial=trial, participants=participants)
 
     @app.route('/trials/<int:trial_id>/addParticipant', methods=['GET', 'POST'])
@@ -181,21 +181,45 @@ def main():
     def addParticipant(trial_id):
         index = request.args.get('index')
         #print(f'index={index}')
-        participants_count = Participants.query.filter_by(trial_id=trial_id).count()  # количество зарегистрированных
-        # участников
-        #print(f'participants_count={participants_count}')
-        scheme_count = Schemes.query.filter_by(trial_id=trial_id).count()
-        #print(f'scheme.count()={scheme_count}')
-        scheme = Schemes.query.filter_by(trial_id=trial_id).all()
-        '''for i in range(scheme_count):
-            print(f'i={i} scheme[i].id={scheme[i].id}')'''
-        treatment = scheme[participants_count].treatment
-        #print(f'treatment={treatment}')
 
-        new_participant = Participants(index=index, trial_id=trial_id, treatment=treatment)
-        db.session.add(new_participant)
-        db.session.commit()
-        return redirect(f'/trials/{trial_id}/editing')
+        ''' количество уже зарегистрированных участников'''
+        participants_count = Participants.query.filter_by(trial_id=trial_id).count()
+        #print(f'participants_count={participants_count}')
+
+        number_of_participants = Trials.query.get_or_404(trial_id).number_of_participants
+        print(f'number_of_participants={number_of_participants}')
+
+        if participants_count < number_of_participants:
+            scheme_count = Schemes.query.filter_by(trial_id=trial_id).count()
+            #print(f'scheme.count()={scheme_count}')
+            scheme = Schemes.query.filter_by(trial_id=trial_id).all()
+            '''for i in range(scheme_count):
+                print(f'i={i} scheme[i].id={scheme[i].id}')'''
+            treatment = scheme[participants_count].treatment
+
+            new_participant = Participants(index=index, trial_id=trial_id, treatment=treatment)
+            db.session.add(new_participant)
+            db.session.commit()
+            return redirect(f'/trials/{trial_id}/editing')
+        else:
+            flash('Списки пациентов заполнены, завершите исследование')
+            return redirect(f'/trials/{trial_id}/editing')
+
+    @app.route('/trials/<int:trial_id>/finishTrial')
+    @login_required
+    def finishTrial(trial_id):
+        participants_count = Participants.query.filter_by(trial_id=trial_id).count()
+        number_of_participants = Trials.query.get_or_404(trial_id).number_of_participants
+
+        if participants_count == number_of_participants:
+            trial = Trials.query.get_or_404(trial_id)
+            trial.if_finished = 1
+            db.session.add(trial)
+            db.session.commit()
+            return redirect('/account')
+        else:
+            flash('Список пациентов ещё не заполнен')
+            return redirect(f'/trials/{trial_id}/editing')
 
     @app.route('/register', methods=['GET', 'POST'])
     def register():
@@ -255,7 +279,7 @@ def main():
     @login_required
     def account():
         user_query = Users.query.filter_by(login=AUTHORIZED_LOGIN).first()
-        account_trials = Trials.query.filter_by(user_id=user_query.id).all()
+        account_trials = Trials.query.filter_by(user_id=user_query.id, if_finished=0).all()
         return render_template("account.html", account_trials=account_trials, AUTHORIZED_LOGIN=AUTHORIZED_LOGIN)
 
     @app.route('/users')

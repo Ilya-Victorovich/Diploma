@@ -14,7 +14,18 @@
         </div>
 
         <button type="submit" class="btn btn-success" onclick="openForm()">Добавить пациента</button>
+        <a href="/trials/{{ trial.id }}/finishTrial" class="btn btn-success">Завершить исследование</a>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class=flashes>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
         <hr>
+
         <div class="form-popup" id="myForm">
             <form method="post" class="form-container">
                 <h5>Введите индекс пациента:</h5>
@@ -38,7 +49,6 @@
             Никого нет
         {% endif %}
     </div>
-
 
 <script>
     function openForm() {

@@ -17,9 +17,9 @@
     <h1>Создание исследования</h1>
         <form method="post" id="interv" name="interv">
             <input type="text" name="title" id="title" class="form-control" placeholder="title">
-            <input type="number" name="number_of_participants" id="number_of_participants" class="form-control" placeholder="Number of participants" step="1" min="2" max="1000" value="15">
+            <input type="number" name="number_of_participants" id="number_of_participants" class="form-control" placeholder="Number of participants" step="1" min="2" max="1000">
             <input type="number" name="number_of_interventions" id="number_of_interventions" class="form-control" placeholder="number_of_interventions" step="1" min="2" max="10" onChange="createtext(this);this.oldvalue = this.value;">
-            <input type="number" name="max_group_size" id="max_group_size" class="form-control" placeholder="max_group_size" min="1">
+            <input type="number" name="max_block_size" id="max_block_size" class="form-control" placeholder="max_block_size" min="1">
             <input type="submit" class="btn btn-success" value="Далее">
         </form>
 </div>
