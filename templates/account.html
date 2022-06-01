@@ -5,9 +5,9 @@
 
 {% block body %}
 <div class="container mt-5">
-    <h1>Личный кабинет</h1>
-    Добро пожаловать, {{ AUTHORIZED_LOGIN }}
-    Ваши исследования:
+    <h1 align="center">Личный кабинет</h1>
+    <h4>Добро пожаловать, {{ AUTHORIZED_LOGIN }}</h4>
+    <h5>Ваши исследования:</h5>
     {% if account_trials|length > 0 %}
         {% for i in account_trials%}
         <div class="alert alert-info">
@@ -21,7 +21,7 @@
         </div>
         {% endfor %}
     {% else %}
-        Ничего нет
+    Ничего нет
     {% endif %}
 
 </div>
