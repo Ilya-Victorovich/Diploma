@@ -1,11 +1,9 @@
 from flask import Flask, render_template, url_for, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 import rpy2.robjects as robjects
-
-AUTHORIZED_LOGIN = None  # Значение логина, под которым зашел пользователь
 
 
 def main():
@@ -37,7 +35,7 @@ def main():
         number_of_participants = db.Column(db.Integer)  # количество испытуемых
         number_of_interventions = db.Column(db.Integer)  # количество вмешательств
         max_block_size = db.Column(db.Integer)  # максимальный размер группы
-        if_finished = db.Column(db.Boolean, default=0)
+        is_finished = db.Column(db.Boolean, default=0)
 
         '''связь таблицы пользователя и исследований - один к многим, значение таблицы в ForeignKey - всегда с маленькой 
         буквы '''
@@ -57,6 +55,13 @@ def main():
         trial_id = db.Column(db.Integer)
         treatment = db.Column(db.String(20))
 
+    class Logging(db.Model):
+        id = db.Column(db.Integer, primary_key=True)
+        actor_id = db.Column(db.Integer)
+        action_type = db.Column(db.String(20))
+        is_successful = db.Column(db.Boolean)
+        date = db.Column(db.DateTime, default=datetime.utcnow)
+
     @login_manager.user_loader
     def load_user(user_id):
         return Users.query.get(user_id)
@@ -73,8 +78,8 @@ def main():
     @login_required
     def addTrials():
         if request.method == "POST":
-            username = (Users.query.filter_by(login=AUTHORIZED_LOGIN).first()).login
-            user_id = (Users.query.filter_by(login=AUTHORIZED_LOGIN).first()).id
+            username = Users.query.get_or_404(current_user.get_id()).login
+            user_id = Users.query.get_or_404(current_user.get_id()).id
             title = request.form['title']
             number_of_participants = int(request.form['number_of_participants'])
             number_of_interventions = int(request.form['number_of_interventions'])
@@ -145,7 +150,7 @@ def main():
 
     @app.route('/trials')  # завершенные исследования
     def trials():
-        trials = Trials.query.filter_by(if_finished=1).order_by(Trials.date.desc()).all()
+        trials = Trials.query.filter_by(is_finished=1).order_by(Trials.date.desc()).all()
         return render_template("trials.html", trials=trials)
 
     @app.route('/trials/<int:trial_id>/delete')
@@ -187,7 +192,7 @@ def main():
         #print(f'participants_count={participants_count}')
 
         number_of_participants = Trials.query.get_or_404(trial_id).number_of_participants
-        print(f'number_of_participants={number_of_participants}')
+        #print(f'number_of_participants={number_of_participants}')
 
         if participants_count < number_of_participants:
             scheme_count = Schemes.query.filter_by(trial_id=trial_id).count()
@@ -213,7 +218,7 @@ def main():
 
         if participants_count == number_of_participants:
             trial = Trials.query.get_or_404(trial_id)
-            trial.if_finished = 1
+            trial.is_finished = 1
             db.session.add(trial)
             db.session.commit()
             return redirect('/account')
@@ -260,8 +265,7 @@ def main():
             '''Проверка пароля по заданному хэшированному значению пароля: если сходится - авторизуем'''
             if user and check_password_hash(user.password, password):
                 login_user(user)
-                global AUTHORIZED_LOGIN
-                AUTHORIZED_LOGIN = login
+                #print(user.get_id())
                 return redirect('/account')
             else:
                 flash('Ошибка авторизации')
@@ -278,9 +282,10 @@ def main():
     @app.route('/account')
     @login_required
     def account():
-        user_query = Users.query.filter_by(login=AUTHORIZED_LOGIN).first()
-        account_trials = Trials.query.filter_by(user_id=user_query.id, if_finished=0).all()
-        return render_template("account.html", account_trials=account_trials, AUTHORIZED_LOGIN=AUTHORIZED_LOGIN)
+        user = Users.query.get_or_404(current_user.get_id())
+        account_trials = Trials.query.filter_by(user_id=current_user.get_id(), is_finished=0).all()
+        login = Users.query.get_or_404(current_user.get_id()).login
+        return render_template("account.html", account_trials=account_trials, AUTHORIZED_LOGIN=login)
 
     @app.route('/users')
     def users():
