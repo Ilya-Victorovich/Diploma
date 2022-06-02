@@ -5,24 +5,41 @@
 
 {% block body %}
 <div class="container mt-5">
-    <h1 align="center">Личный кабинет</h1>
-    <h4>Добро пожаловать, {{ AUTHORIZED_LOGIN }}</h4>
-    <h5>Ваши исследования:</h5>
-    {% if account_trials|length > 0 %}
-        {% for i in account_trials%}
+    <h3 align="center">Личный кабинет</h3>
+    <p>Добро пожаловать, {{ AUTHORIZED_LOGIN }}
+    <hr>
+    <h5>Ваши активные исследования:</h5>
+    {% if account_trials_active|length > 0 %}
+        {% for i in account_trials_active %}
         <div class="alert alert-info">
-            {{ i.id }}
-            {{ i.username }}
-            {{ i.title }}
-            {{ i.date.date() }}
-            {{ i.number_of_participants }}
+            <p>Идентификатор: {{ i.id }}
+            <p>Имя пользователя: {{ i.username }}
+            <p>Название: {{ i.title }}
+            <p>Дата: {{ i.date.date() }}
+            <p>Необходимое количество пациентов: {{ i.number_of_participants }}
+            <p>
             <a href="/trials/{{ i.id }}/delete" class="btn btn-outline-secondary">Удалить</a>
             <a href="/trials/{{ i.id }}/editing" class="btn btn-outline-secondary">Редактировать исследование</a>
         </div>
         {% endfor %}
     {% else %}
-    Ничего нет
+        Ничего нет
     {% endif %}
 
+    <hr>
+    <h5>Ваши завершённые исследования:</h5>
+    {% if account_trials_finished|length > 0 %}
+        {% for i in account_trials_finished %}
+            <div class="alert alert-info">
+                <p>Идентификатор: {{ i.id }}
+                <p>Имя пользователя: {{ i.username }}
+                <p>Название: {{ i.title }}
+                <p>Дата: {{ i.date.date() }}
+                <p>Необходимое количество пациентов: {{ i.number_of_participants }}
+            </div>
+        {% endfor %}
+    {% else %}
+        Ничего нет
+    {% endif %}
 </div>
 {% endblock %}

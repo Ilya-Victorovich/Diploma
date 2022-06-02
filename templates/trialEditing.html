@@ -38,11 +38,9 @@
         <h4>Зарегистрированные пациенты:</h4>
         {% if participants|length > 0 %}
             {% for i in participants%}
-            <div class="alert alert-info">
-                {{ i.id }}
-                {{ i.index }}
-                {{ i.trial_id }}
-                {{ i.treatment }}
+            <div class="alert alert-info col-2">
+                <div>Индекс: {{ i.index }}</div>
+                <div>Лечение: {{ i.treatment }}</div>
             </div>
             {% endfor %}
         {% else %}
