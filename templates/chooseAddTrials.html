@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}
+    Выбор типа рандомизации
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h4>Выберите тип рандомизации:</h4><br>
+    <form method="post">
+        <div class="col-4" style="background-color:#CFF4FC; padding: 10px; width=40px;">
+        <input class="form-check-input" type="radio" name="randomization_type" value="1"> Безблочная<Br>
+        <input class="form-check-input" type="radio" name="randomization_type" value="2"> Блочная с фиксированным размером блоков<Br>
+        <input class="form-check-input" type="radio" name="randomization_type" value="3"> Блочная со случайными размерами блоков</p>
+        <input type="submit" class="btn btn-success" value="Далее">
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -30,8 +30,8 @@ def main():
         id = db.Column(db.Integer, primary_key=True)
         username = db.Column(db.String(20), nullable=False)
         title = db.Column(db.String(20), nullable=False)
-
         date = db.Column(db.DateTime, default=datetime.utcnow)
+        rand_type = db.Column(db.Integer)
         number_of_participants = db.Column(db.Integer, nullable=False)  # количество испытуемых
         number_of_interventions = db.Column(db.Integer, nullable=False)  # количество вмешательств
         max_block_size = db.Column(db.Integer)  # максимальный размер группы
@@ -75,32 +75,55 @@ def main():
     def index():
         return render_template("index.html")
 
+    @app.route('/chooseAddTrials', methods=['GET', 'POST'])
+    @login_required
+    def chooseAddTrials():
+        if request.method == "POST":
+            type = request.form['randomization_type']
+            return redirect(f'/addTrials?type={type}')
+        return render_template('chooseAddTrials.html')
+
     @app.route('/addTrials', methods=['GET', 'POST'])
     @login_required
     def addTrials():
+        rand_type = request.args.get('type')
+        print(type(rand_type))
         if request.method == "POST":
             username = Users.query.get_or_404(current_user.get_id()).login
             user_id = Users.query.get_or_404(current_user.get_id()).id
             title = request.form['title']
-            number_of_participants = int(request.form['number_of_participants'])
-            number_of_interventions = int(request.form['number_of_interventions'])
-            max_block_size = int(request.form['max_block_size'])
+            number_of_participants = request.form['number_of_participants']
+            number_of_interventions = request.form['number_of_interventions']
+            if rand_type == '1':
+                if not title or not number_of_participants or not number_of_interventions:
+                    flash('Заполните все поля')
+                    return render_template('addTrials.html')
+                trial_block_size = int(number_of_participants)
+            if rand_type == '2':
+                block_size = (request.form['block_size'])
+                if not title or not number_of_participants or not number_of_interventions or not block_size:
+                    flash('Заполните все поля')
+                    return render_template('addTrials.html')
+                trial_block_size = int(block_size)
+            if rand_type == '3':
+                max_block_size = (request.form['max_block_size'])
+                if not title or not number_of_participants or not number_of_interventions or not max_block_size:
+                    flash('Заполните все поля')
+                    return render_template('addTrials.html')
+                trial_block_size = int(max_block_size)
 
+            number_of_participants = int(number_of_participants)
+            number_of_interventions = int(number_of_interventions)
             trial_max = Trials.query.order_by(Trials.id.desc()).first()
             if not trial_max:
                 trial_id = 1
             else:
                 trial_id = trial_max.id + 1
 
-            trial = Trials(username=username, title=title,
+            trial = Trials(username=username, title=title, rand_type=int(rand_type),
                            number_of_participants=number_of_participants,
                            number_of_interventions=number_of_interventions,
-                           max_block_size=max_block_size, user_id=user_id, id=trial_id)
-            # print(f'{title} {number_of_participants} {number_of_interventions}')
-
-            if not title or not number_of_participants or not number_of_interventions:
-                flash('Заполните все поля')
-                return render_template('addTrials.html')
+                           max_block_size=trial_block_size, user_id=user_id, id=trial_id)
 
             interventions = []  # список из вариантов вмешательств
             for i in range(number_of_interventions):
@@ -132,7 +155,7 @@ def main():
                 randomization_function_r = robjects.globalenv['randomization']  # Загрузка функции, определенной в R.
                 # print(number_of_participants)
                 data = randomization_function_r(number_of_participants, number_of_interventions, interventions,
-                                                max_block_size)
+                                                trial_block_size)
                 # print(data)
                 try:
                     db.session.add(trial)
@@ -141,9 +164,7 @@ def main():
                         block_name = data[1][i]
                         block_size = data[2][i]
                         treatment = data[3].levels[data[3][i] - 1]
-                        # print(f'{id} {block_id} {block_size} {treatment}')
-                        '''schemes.append(Schemes(trial_id=trial.id, id=id, block_id=block_id, block_size=block_size,
-                                               treatment=treatment))'''
+                        # print(f'{id} {block_size} {treatment}')
                         # print(f'trial_id={trial.id}')
                         db.session.add(
                             Schemes(trial_id=trial.id, number_id=id, block_name=block_name, block_size=block_size,
@@ -158,7 +179,7 @@ def main():
                     db.session.commit()
                     return "Ошибка при добавлении данных в БД"
         else:
-            return render_template('addTrials.html')
+            return render_template('addTrials.html', rand_type=rand_type)
 
     @app.route('/trials')  # завершенные исследования
     def trials():
