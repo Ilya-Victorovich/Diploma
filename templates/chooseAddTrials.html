@@ -7,11 +7,22 @@
 <div class="container mt-5">
     <h4>Выберите тип рандомизации:</h4><br>
     <form method="post">
-        <div class="col-4" style="background-color:#CFF4FC; padding: 10px; width=40px;">
-        <input class="form-check-input" type="radio" name="randomization_type" value="1"> Безблочная<Br>
-        <input class="form-check-input" type="radio" name="randomization_type" value="2"> Блочная с фиксированным размером блоков<Br>
-        <input class="form-check-input" type="radio" name="randomization_type" value="3"> Блочная со случайными размерами блоков</p>
-        <input type="submit" class="btn btn-success" value="Далее">
+        <div class="row" style="background-color:white;" align="center">
+                <div class="col-3" style="background-color:#CFF4FC; padding: 10px; margin:15px">
+                    <input class="form-check-input" type="radio" name="randomization_type" value="1"> Безблочная рандомизация<br>(простая)<hr>
+                    Простая (обычная) рандомизация создаёт последовательность случайных значений. Наглядный пример – подбрасывание монетки, определяющей, в какую группу пойдет испытуемый.
+                </div>
+                <div class="col-3" style="background-color:#CFF4FC; padding: 10px; margin:15px">
+                    <input class="form-check-input" type="radio" name="randomization_type" value="2"> Блочная с фиксированным размером блоков<hr>
+                    Формирует блоки одинаковых размеров, кратных сумме методов исследования. В этих блоках и проводится рандомизация, по одинаковому количеству пациентов с тем или иным вмешательством.
+                </div>
+                <div class="col-3" style="background-color:#CFF4FC; padding: 10px; margin:15px">
+                    <input class="form-check-input" type="radio" name="randomization_type" value="3"> Блочная со случайными размерами блоков<hr>
+                    Также, как и в блочной фиксированной, рандомизация проводится в блоках, но блоки генерируются со случайным размером. Максимальый размер блока задаёт создатель исследования.
+                </div>
+            <div class="col-4" align="left" style="margin:10px">
+                <input type="submit" class="btn btn-success" value="Далее">
+            </div>
         </div>
     </form>
 </div>
