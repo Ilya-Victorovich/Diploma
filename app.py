@@ -30,22 +30,22 @@ def main():
         id = db.Column(db.Integer, primary_key=True)
         title = db.Column(db.String(50), nullable=False)
         date = db.Column(db.DateTime, default=datetime.utcnow)
-        rand_type = db.Column(db.Integer)
+        rand_type = db.Column(db.Integer, nullable=False)
         number_of_participants = db.Column(db.Integer, nullable=False)  # количество испытуемых
         number_of_interventions = db.Column(db.Integer, nullable=False)  # количество вмешательств
-        max_block_size = db.Column(db.Integer)  # максимальный размер группы
-        is_finished = db.Column(db.Boolean, default=0)
+        max_block_size = db.Column(db.Integer, nullable=False)  # максимальный размер группы
+        is_finished = db.Column(db.Boolean, nullable=False, default=0)
 
         '''связь таблицы пользователя и исследований - один к многим, значение таблицы в ForeignKey - всегда с маленькой 
         буквы '''
-        user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+        user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
     class Schemes(db.Model):
         id = db.Column(db.Integer, primary_key=True)
         trial_id = db.Column(db.Integer, db.ForeignKey('trials.id'), nullable=False)
         number_id = db.Column(db.Integer, nullable=False)
-        block_name = db.Column(db.String(20))
-        block_size = db.Column(db.Integer)
+        block_name = db.Column(db.String(20), nullable=False)
+        block_size = db.Column(db.Integer, nullable=False)
         treatment = db.Column(db.String(20), nullable=False)
 
     class Participants(db.Model):
@@ -56,10 +56,10 @@ def main():
 
     class Logging(db.Model):
         id = db.Column(db.Integer, primary_key=True)
-        actor_id = db.Column(db.Integer)
-        action_type = db.Column(db.String(20))
-        aim_id = db.Column(db.Integer)  # цель применения (id исследования)
-        is_successful = db.Column(db.Boolean)
+        actor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+        action_type = db.Column(db.String(20), nullable=False)
+        aim_id = db.Column(db.Integer, db.ForeignKey('trials.id'), nullable=False)  # цель применения (id исследования)
+        is_successful = db.Column(db.Boolean, nullable=False)
         date = db.Column(db.DateTime, default=datetime.utcnow)
 
     @login_manager.user_loader
