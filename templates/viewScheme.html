@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}
+    Исследование
+{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+    {% if scheme|length > 0 %}
+        {% for i in scheme %}
+        <div class="alert alert-info">
+            <p>Идентификатор записи: {{ i. number_id }}
+            <p>Идентификатор блока: {{ i.block_name }}
+            <p>Размер блока: {{ i.block_size }}
+            <p>Вмешательство: {{ i.treatment }}
+        </div>
+        {% endfor %}
+    {% else %}
+        Ничего нет
+    {% endif %}
+</div>
+{% endblock %}

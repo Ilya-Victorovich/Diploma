@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}
+    Просмотр лога
+{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+    {% if log|length > 0 %}
+        {% for i in log %}
+        <div class="alert alert-info">
+            <p>Деятель: {{ i.actor_id }}
+            <p>Тип операции: {{ i.action_type }}
+            <p>Успешно: {{ i.is_successful }}
+            <p>Дата: {{ i.date.date() }}
+        </div>
+        {% endfor %}
+    {% else %}
+        Ничего нет
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}
+    Исследование
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h4>Зарегистрированные пациенты:</h4>
+    {% if participants|length > 0 %}
+        {% for trial in participants%}
+        <div class="alert alert-info col-2">
+            <div>Индекс: {{ trial.index }}</div>
+            <div>Лечение: {{ trial.treatment }}</div>
+        </div>
+        {% endfor %}
+    {% else %}
+        Никого нет
+    {% endif %}
+</div>
+{% endblock %}

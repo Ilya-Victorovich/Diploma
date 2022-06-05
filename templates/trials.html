@@ -5,16 +5,18 @@
 
 {% block body %}
 <div class="container mt-5">
-    <h1>Список исследований</h1>
-    {% if trials|length > 0 %}
-        {% for i in trials%}
-        <div class="alert alert-info">
-            {{ i.id }}
-            {{ i.username }}
-            {{ i.title }}
-            {{ i.date.date() }}
-            {{ i.number_of_participants }}
-        </div>
+    {% if trials_finished|length > 0 %}
+        {% for i in trials_finished %}
+            <div class="alert alert-info">
+                <p>Идентификатор: {{ i.id }}
+                <p>Имя пользователя: {{ i.username }}
+                <p>Название: {{ i.title }}
+                <p>Дата: {{ i.date.date() }}
+                <p>Необходимое количество пациентов: {{ i.number_of_participants }}
+                <a href="/trials/{{ i.id }}/viewLog" class="btn btn-outline-secondary">Просмотр лога</a>
+                <a href="/trials/{{ i.id }}/viewParticipants" class="btn btn-outline-secondary">Просмотр пациентов</a>
+                <a href="/trials/{{ i.id }}/viewScheme" class="btn btn-outline-secondary">Просмотр таблиц рандомизации</a>
+            </div>
         {% endfor %}
     {% else %}
         Ничего нет

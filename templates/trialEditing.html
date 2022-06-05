@@ -6,25 +6,15 @@
 {% block body %}
     <div class="container mt-5">
         <div class="alert alert-info">
-            {{ trial.id }}
-            {{ trial.username }}
-            {{ trial.title }}
-            {{ trial.date.date() }}
-            {{ trial.number_of_participants }}
+            <p>Идентификатор: {{ trial.id }}
+            <p>Имя пользователя: {{ trial.username }}
+            <p>Название: {{ trial.title }}
+            <p>Дата: {{ trial.date.date() }}
+            <p>Необходимое количество пациентов: {{ trial.number_of_participants }}
         </div>
 
         <button type="submit" class="btn btn-success" onclick="openForm()">Добавить пациента</button>
         <a href="/trials/{{ trial.id }}/finishTrial" class="btn btn-success">Завершить исследование</a>
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul class=flashes>
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
-        <hr>
 
         <div class="form-popup" id="myForm">
             <form method="post" class="form-container">
@@ -33,14 +23,26 @@
                 <button type="submit" class="btn btn-success">Добавить</button>
                 <button type="submit" class="btn cancel" onclick="closeForm()">Закрыть</button>
             </form>
+        <hr>
+        </div>
+        <div style="position:absolute; left:0px; top:270px; display:inline-block; background-color:white; width:270px">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class=flashes>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+            {% endwith %}
         </div>
 
         <h4>Зарегистрированные пациенты:</h4>
         {% if participants|length > 0 %}
-            {% for i in participants%}
+            {% for trial in participants%}
             <div class="alert alert-info col-2">
-                <div>Индекс: {{ i.index }}</div>
-                <div>Лечение: {{ i.treatment }}</div>
+                <div>Индекс: {{ trial.index }}</div>
+                <div>Лечение: {{ trial.treatment }}</div>
             </div>
             {% endfor %}
         {% else %}
