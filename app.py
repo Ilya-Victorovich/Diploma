@@ -78,8 +78,12 @@ def main():
     @login_required
     def chooseAddTrials():
         if request.method == "POST":
-            type = request.form['randomization_type']
-            return redirect(f'/addTrials?type={type}')
+            type = request.form.get('randomization_type')
+            if not type:
+                flash('Необходимо выбрать тип рандомизации')
+                return render_template('chooseAddTrials.html')
+            else:
+                return redirect(f'/addTrials?type={type}')
         return render_template('chooseAddTrials.html')
 
     @app.route('/addTrials', methods=['GET', 'POST'])
