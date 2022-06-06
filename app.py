@@ -94,19 +94,19 @@ def main():
             if rand_type == '1':
                 if not title or not number_of_participants or not number_of_interventions:
                     flash('Заполните все поля')
-                    return render_template('addTrials.html')
+                    return render_template('addTrials.html', rand_type=rand_type)
                 trial_block_size = int(number_of_participants)
             if rand_type == '2':
                 block_size = (request.form['block_size'])
                 if not title or not number_of_participants or not number_of_interventions or not block_size:
                     flash('Заполните все поля')
-                    return render_template('addTrials.html')
+                    return render_template('addTrials.html', rand_type=rand_type)
                 trial_block_size = int(block_size)
             if rand_type == '3':
                 max_block_size = (request.form['max_block_size'])
                 if not title or not number_of_participants or not number_of_interventions or not max_block_size:
                     flash('Заполните все поля')
-                    return render_template('addTrials.html')
+                    return render_template('addTrials.html', rand_type=rand_type)
                 trial_block_size = int(max_block_size)
 
             number_of_participants = int(number_of_participants)
@@ -136,10 +136,10 @@ def main():
                         break
             if not unique:
                 flash('Поля совпадают')
-                return render_template('addTrials.html')
+                return render_template('addTrials.html', rand_type=rand_type)
             elif empty:
                 flash('Заполните все поля')
-                return render_template('addTrials.html')
+                return render_template('addTrials.html', rand_type=rand_type)
             else:
                 # Рандомизация с помощью кода R, создание групп
                 r = robjects.r  # Определение сценария R и загрузка экземпляра в Python
