@@ -184,7 +184,8 @@ def main():
     @app.route('/trials')  # завершенные исследования
     def trials():
         trials_finished = Trials.query.filter_by(is_finished=1).order_by(Trials.date.desc()).all()
-        return render_template("trials.html", trials_finished=trials_finished)
+        login = Users.query.get_or_404(current_user.get_id()).login
+        return render_template("trials.html", trials_finished=trials_finished, login=login)
 
     @app.route('/trials/<int:trial_id>/delete')
     @login_required
@@ -374,7 +375,7 @@ def main():
         account_trials_finished = Trials.query.filter_by(user_id=current_user.get_id(), is_finished=1).all()
         login = Users.query.get_or_404(current_user.get_id()).login
         return render_template("account.html", account_trials_active=account_trials_active,
-                               account_trials_finished=account_trials_finished, AUTHORIZED_LOGIN=login)
+                               account_trials_finished=account_trials_finished, login=login)
 
     @app.route('/users')
     def users():
