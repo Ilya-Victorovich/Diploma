@@ -13,6 +13,7 @@
                 <p>Название: {{ i.title }}
                 <p>Дата: {{ i.date.date() }}
                 <p>Необходимое количество пациентов: {{ i.number_of_participants }}
+                <p>
                 <a href="/trials/{{ i.id }}/viewLog" class="btn btn-outline-secondary">Просмотр лога</a>
                 <a href="/trials/{{ i.id }}/viewParticipants" class="btn btn-outline-secondary">Просмотр пациентов</a>
                 <a href="/trials/{{ i.id }}/viewScheme" class="btn btn-outline-secondary">Просмотр таблиц рандомизации</a>

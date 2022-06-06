@@ -28,14 +28,14 @@
 
     <form method="post" id="interv" name="interv">
         <label>Название:</label><input type="text" name="title" id="title" class="form-control" placeholder="title">
-        <label>Количество вмешательств:</label><input type="number" name="number_of_interventions" id="number_of_interventions" class="form-control" placeholder="number_of_interventions" step="1" min="2" max="10" onChange="createtext(this);this.oldvalue = this.value;">
-        <label>Количество испытуемых:</label><input type="number" name="number_of_participants" id="number_of_participants" class="form-control" placeholder="Number of participants" step="1" min="2" max="1000">
+        <label>Количество вмешательств:</label><input type="number" name="number_of_interventions" id="number_of_interventions" class="form-control" placeholder="number_of_interventions" step="1" min="2" onChange="createtext(this);this.oldvalue = this.value;">
+        <label>Количество испытуемых:</label><input type="number" name="number_of_participants" id="number_of_participants" class="form-control" placeholder="Number of participants" step="1" min="2">
         {% if rand_type=='2' %}
         <label>Размер блока:</label><input type="number" name="block_size" id="block_size" class="form-control" placeholder="block_size" min="2">
         {% elif rand_type=='3' %}
         <label>Максимальный размер блока:</label><input type="number" name="max_block_size" id="max_block_size" class="form-control" placeholder="max_block_size" min="1">
         {% endif %}
-        <input type="submit" class="btn btn-success" value="Далее">
+        <input type="submit" class="btn btn-success" value="Создать">
         Наименование вмешательств:
     </form>
 </div>

@@ -302,8 +302,12 @@ def main():
 
     @app.route('/trials/<int:trial_id>/viewScheme')
     def viewScheme(trial_id):
-        scheme = Schemes.query.filter_by(trial_id=trial_id).all()
-        return render_template('viewScheme.html', scheme=scheme)
+        trial = Trials.query.get_or_404(trial_id)
+        if trial.is_finished:
+            scheme = Schemes.query.filter_by(trial_id=trial_id).all()
+            return render_template('viewScheme.html', scheme=scheme)
+        else:
+            return redirect('/')
 
     @app.route('/register', methods=['GET', 'POST'])
     def register():
