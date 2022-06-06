@@ -29,7 +29,7 @@ def main():
     class Trials(db.Model):
         id = db.Column(db.Integer, primary_key=True)
         title = db.Column(db.String(50), nullable=False)
-        date = db.Column(db.DateTime, default=datetime.utcnow)
+        date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
         rand_type = db.Column(db.Integer, nullable=False)
         number_of_participants = db.Column(db.Integer, nullable=False)  # количество испытуемых
         number_of_interventions = db.Column(db.Integer, nullable=False)  # количество вмешательств
@@ -60,7 +60,7 @@ def main():
         action_type = db.Column(db.String(20), nullable=False)
         aim_id = db.Column(db.Integer, db.ForeignKey('trials.id'), nullable=False)  # цель применения (id исследования)
         is_successful = db.Column(db.Boolean, nullable=False)
-        date = db.Column(db.DateTime, default=datetime.utcnow)
+        date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -339,17 +339,18 @@ def main():
     def login():
         login = request.form.get('login')
         password = request.form.get('password')
-        if login and password:
-            user = Users.query.filter_by(login=login).first()
-            '''Проверка пароля по заданному хэшированному значению пароля: если сходится - авторизуем'''
-            if user and check_password_hash(user.password, password):
-                login_user(user)
-                # print(user.get_id())
-                return redirect('/account')
+        if request.method == 'POST':
+            if login and password:
+                user = Users.query.filter_by(login=login).first()
+                '''Проверка пароля по заданному хэшированному значению пароля: если сходится - авторизуем'''
+                if user and check_password_hash(user.password, password):
+                    login_user(user)
+                    # print(user.get_id())
+                    return redirect('/account')
+                else:
+                    flash('Ошибка авторизации')
             else:
-                flash('Ошибка авторизации')
-        else:
-            flash('Заполните поля логина и пароля')
+                flash('Заполните поля логина и пароля')
         return render_template("login.html")
 
     @app.route('/logout', methods=['GET', 'POST'])
