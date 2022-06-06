@@ -135,7 +135,7 @@ def main():
                         unique = False
                         break
             if not unique:
-                flash('Поля совпадают')
+                flash('Поля вмешательств совпадают')
                 return render_template('addTrials.html', rand_type=rand_type)
             elif empty:
                 flash('Заполните все поля')
