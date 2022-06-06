@@ -5,6 +5,7 @@
 
 {% block body %}
 <div class="container mt-5">
+    <h1> Завершённые исследования пользователей: </h1>
     {% if trials_finished|length > 0 %}
         {% for i in trials_finished %}
             <div class="alert alert-info">
