@@ -15,9 +15,9 @@
                 <p>Дата: {{ i.Trials.date.date() }}
                 <p>Необходимое количество пациентов: {{ i.Trials.number_of_participants }}
                 <p>
-                <a href="/trials/{{ i.id }}/viewLog" class="btn btn-outline-secondary">Просмотр лога</a>
-                <a href="/trials/{{ i.id }}/viewParticipants" class="btn btn-outline-secondary">Просмотр пациентов</a>
-                <a href="/trials/{{ i.id }}/viewScheme" class="btn btn-outline-secondary">Просмотр таблиц рандомизации</a>
+                <a href="/trials/{{ i.Trials.id }}/viewLog" class="btn btn-outline-secondary">Просмотр лога</a>
+                <a href="/trials/{{ i.Trials.id }}/viewParticipants" class="btn btn-outline-secondary">Просмотр пациентов</a>
+                <a href="/trials/{{ i.Trials.id }}/viewScheme" class="btn btn-outline-secondary">Просмотр таблиц рандомизации</a>
             </div>
         {% endfor %}
     {% else %}
