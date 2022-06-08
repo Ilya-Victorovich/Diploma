@@ -183,9 +183,8 @@ def main():
 
     @app.route('/trials')  # завершенные исследования
     def trials():
-        trials_finished = Trials.query.filter_by(is_finished=1).order_by(Trials.date.desc()).all()
-        login = Users.query.get_or_404(current_user.get_id()).login
-        return render_template("trials.html", trials_finished=trials_finished, login=login)
+        trials_fifished_joined = db.session.query(Trials, Users).join(Users, Trials.user_id == Users.id).all()
+        return render_template("trials.html", trials_finished=trials_fifished_joined, login=login)
 
     @app.route('/trials/<int:trial_id>/delete')
     @login_required
@@ -216,11 +215,11 @@ def main():
     def trial_editing(trial_id):
         trial = Trials.query.get_or_404(trial_id)
         participants = Participants.query.filter_by(trial_id=trial_id).all()
+        login = Users.query.get_or_404(current_user.get_id()).login
         if request.method == "POST":
             index = request.form.get('index')
-            # print(f'index={index}')
             return redirect(f'/trials/{trial_id}/addParticipant?index={index}')
-        return render_template('trialEditing.html', trial=trial, participants=participants)
+        return render_template('trialEditing.html', trial=trial, participants=participants, login=login)
 
     @app.route('/trials/<int:trial_id>/addParticipant', methods=['GET', 'POST'])
     @login_required
