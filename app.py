@@ -183,8 +183,9 @@ def main():
 
     @app.route('/trials')  # завершенные исследования
     def trials():
-        trials_fifished_joined = db.session.query(Trials, Users).join(Users, Trials.user_id == Users.id).all()
-        return render_template("trials.html", trials_finished=trials_fifished_joined, login=login)
+        trials_finished_joined = db.session.query(Trials, Users).filter_by(is_finished=1).join(Users, Trials.user_id ==
+                                                                                               Users.id).all()
+        return render_template("trials.html", trials_finished=trials_finished_joined)
 
     @app.route('/trials/<int:trial_id>/delete')
     @login_required
